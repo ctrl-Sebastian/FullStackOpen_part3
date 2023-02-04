@@ -1,7 +1,7 @@
-POST https://phonebook-backend-qto8.onrender.com/api/persons
+POST http://localhost:3001/api/persons/
 Content-Type: application/json
 
 {
-    "name": "Sebastian Marrera",
-    "number": "829-367-0967"
+    "name": "Beverly Marie",
+    "number": "849-450-6097"
 }
