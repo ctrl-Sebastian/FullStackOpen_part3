@@ -1,8 +1,10 @@
+require('dotenv').config
 const express = require('express')
 const app = express()
 var morgan = require('morgan')
 const cors = require('cors')
-
+const mongoose = require('mongoose')
+const Person = require('./models/person')
 
 morgan.token('data', function (req) {
     return `${JSON.stringify(req.body)}`
@@ -62,19 +64,15 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(persons => {
+        response.json(persons)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
-    
-    const person = persons.find(person => person.id === id);
-
-    if (person) {
-        response.json(person);
-    } else {
-        response.status(404).end()
-    }
+    Person.findById(request.params.id).then(person => {
+        response.json(person)
+    })
 })
 
 const generateId = () => {
@@ -87,34 +85,28 @@ const generateId = () => {
 app.post('/api/persons', (request, response) => {
     const body = request.body
 
-    if (!body.name) {
-        return response.status(400).json({ 
-        error: 'name missing' 
-    })
+    if (body.name === undefined) {
+        return response.status(400).json({ error: 'name missing' })
     }
 
-    if (!body.number) {
-        return response.status(400).json({ 
-        error: 'number missing' 
-    })
+    if (body.number === undefined) {
+        return response.status(400).json({ error: 'number missing' })
     }
-
+/*
     if (persons.find(person => person.name === body.name)){
         return response.status(400).json({ 
             error: 'name must be unique' 
         })
     }
-
-    const person = {
-        id: generateId(),
+*/
+    const person = new Person({
         name: body.name,
         number: body.number,
-        date: new Date(),
-    }
+    })
 
-    persons = persons.concat(person)
-
-    response.json(person)
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -127,7 +119,7 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })

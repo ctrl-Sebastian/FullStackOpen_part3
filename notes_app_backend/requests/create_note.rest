@@ -1,4 +1,4 @@
-POST https://notes-app-backend-w1rz.onrender.com/api/notes
+POST http://localhost:3001/api/notes/
 Content-Type: application/json
 
 {
